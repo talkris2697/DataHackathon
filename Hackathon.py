@@ -3,47 +3,52 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-# # Define the file path, column names to remove keep, and number of rows to sample
-# file_path = "venv/CABS.csv"
-# use_cols =['tpep_pickup_datetime', 'tpep_dropoff_datetime']
-# df = pd.read_csv(file_path, usecols=use_cols)
-# df.to_csv('new_Cabs.csv', index=False)
-#
-# file_path = "new_Cabs.csv"
-# df = pd.read_csv(file_path)
-# # # copying the file to work on a safe file
-# work_df = df.copy()
-# print(f"shape = {work_df.shape}")
-# print(f"Checking for nulls: {work_df.isnull().sum()}")
-# # #adjusting the data
-# work_df['tpep_pickup_datetime'] = pd.to_datetime(work_df['tpep_pickup_datetime'], format='%Y-%m-%d %H:%M:%S')
-# # extract date and time into separate columns
-# work_df['tpep_pickup_date'] = work_df['tpep_pickup_datetime'].dt.date
-# work_df['hour_pickup'] = work_df['tpep_pickup_datetime'].dt.hour
-# work_df.drop(['tpep_dropoff_datetime'],axis=1,inplace=True)
-# table = pd.crosstab(index=[work_df['tpep_pickup_date'], work_df['hour_pickup']], columns=['count'])
-# # # in order to work better on less time per refresh
-# table.to_csv('final_cabs.csv', index=True)
-# final_path = 'final_cabs.csv'
-# final_df = pd.read_csv(final_path)
-# final_df.set_index(['tpep_pickup_date','hour_pickup'],inplace=True)
-# # #
-# # # # NOTICE that the numbers represented are given from monday where monday is 0  to sunday where sunday is 6 in day_of_week
-# # #
-# final_df['day_of_week']= pd.to_datetime(final_df.index.get_level_values(0).astype(str))
-# final_df['day_of_week'] = final_df['day_of_week'].dt.weekday
-# final_df['month_bin'] = pd.to_datetime(final_df.index.get_level_values(0).astype(str))
-# final_df['month_bin'] = final_df['month_bin'].dt.month
-# # extract the hour component from the datetime format
-# #define the bins and labels
-# bins_days = [0, 6, 12, 18, 23]
-# labels_days = [0, 1, 2, 3]
-# bins_months = [1, 4, 8, 12]
-# labels_months = [1, 0, 2]
-# # bin the hours and assign labels to each bin
-# final_df['pickup_bin'] = pd.cut(final_df.index.get_level_values(1), bins=bins_days, labels=labels_days, include_lowest=True)
-# final_df['month_bin'] = pd.cut(pd.to_datetime((final_df.index.get_level_values(0))).month, bins=bins_months, labels=labels_months, include_lowest=True)
-# final_df.to_csv('model_cabs.csv',index=True)
+
+
+!pip install gdown
+!gdown "https://drive.google.com/uc?id=1w09SlKhsfw8wkY7Z0z7KbRmPEDekpmT3"
+
+# Define the file path, column names to remove keep, and number of rows to sample
+file_path = "CABS.csv"
+use_cols =['tpep_pickup_datetime', 'tpep_dropoff_datetime']
+df = pd.read_csv(file_path, usecols=use_cols)
+df.to_csv('new_Cabs.csv', index=False)
+
+file_path = "new_Cabs.csv"
+df = pd.read_csv(file_path)
+# # copying the file to work on a safe file
+work_df = df.copy()
+print(f"shape = {work_df.shape}")
+print(f"Checking for nulls: {work_df.isnull().sum()}")
+# #adjusting the data
+work_df['tpep_pickup_datetime'] = pd.to_datetime(work_df['tpep_pickup_datetime'], format='%Y-%m-%d %H:%M:%S')
+# extract date and time into separate columns
+work_df['tpep_pickup_date'] = work_df['tpep_pickup_datetime'].dt.date
+work_df['hour_pickup'] = work_df['tpep_pickup_datetime'].dt.hour
+work_df.drop(['tpep_dropoff_datetime'],axis=1,inplace=True)
+table = pd.crosstab(index=[work_df['tpep_pickup_date'], work_df['hour_pickup']], columns=['count'])
+# # in order to work better on less time per refresh
+table.to_csv('final_cabs.csv', index=True)
+final_path = 'final_cabs.csv'
+final_df = pd.read_csv(final_path)
+final_df.set_index(['tpep_pickup_date','hour_pickup'],inplace=True)
+# #
+# # # NOTICE that the numbers represented are given from monday where monday is 0  to sunday where sunday is 6 in day_of_week
+# #
+final_df['day_of_week']= pd.to_datetime(final_df.index.get_level_values(0).astype(str))
+final_df['day_of_week'] = final_df['day_of_week'].dt.weekday
+final_df['month_bin'] = pd.to_datetime(final_df.index.get_level_values(0).astype(str))
+final_df['month_bin'] = final_df['month_bin'].dt.month
+# extract the hour component from the datetime format
+#define the bins and labels
+bins_days = [0, 6, 12, 18, 23]
+labels_days = [0, 1, 2, 3]
+bins_months = [1, 4, 8, 12]
+labels_months = [1, 0, 2]
+# bin the hours and assign labels to each bin
+final_df['pickup_bin'] = pd.cut(final_df.index.get_level_values(1), bins=bins_days, labels=labels_days, include_lowest=True)
+final_df['month_bin'] = pd.cut(pd.to_datetime((final_df.index.get_level_values(0))).month, bins=bins_months, labels=labels_months, include_lowest=True)
+final_df.to_csv('model_cabs.csv',index=True)
 # building the model:
 # since we do not have a lot of features, we will not do feature selection, and we wish to keep them.
 # which means we will use RandomForestRegressor for linear regression
